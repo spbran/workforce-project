@@ -24,7 +24,7 @@ export default function LevelRing({ level, progress }) {
       </svg>
       <div className="ring-inner">
         <div className="ring-lvl">{level}</div>
-        <div className="ring-cap">Level</div>
+        <div className="ring-cap">Tier</div>
       </div>
     </div>
   )
