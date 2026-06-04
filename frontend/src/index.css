@@ -278,6 +278,8 @@ select.input option { background: var(--surface-2); }
 .switch input:checked + .track::before { transform: translateX(18px); }
 
 /* ── Heatmap ──────────────────────────────────────────────────────────────── */
+.heat-month-row { display: flex; gap: 4px; margin-bottom: 4px; }
+.heat-month-label { width: 14px; min-width: 14px; font-size: 9px; color: var(--text-3); white-space: nowrap; overflow: visible; line-height: 1; }
 .heatmap { display: flex; gap: 4px; }
 .heat-col { display: flex; flex-direction: column; gap: 4px; }
 .heat-cell { width: 14px; height: 14px; border-radius: 3px; background: var(--surface-3); transition: transform var(--t); cursor: pointer; }
@@ -384,9 +386,10 @@ select.input option { background: var(--surface-2); }
 .landing-sub { color: var(--text-2); font-size: 1.05rem; margin: 1.1rem auto 2.5rem; max-width: 480px; }
 .role-cards { display: flex; gap: 1.1rem; justify-content: center; align-items: stretch; flex-wrap: wrap; }
 .role-cards > * { display: flex; }
-.role-card { display: flex; flex-direction: column; align-items: flex-start; width: 250px; height: 100%; padding: 1.6rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); transition: all var(--t); position: relative; overflow: hidden; }
+.role-card { display: flex; flex-direction: column; align-items: flex-start; width: 250px; height: 230px; padding: 1.6rem; text-align: left; background: var(--surface); border: 1px solid var(--border); border-radius: var(--r-lg); transition: all var(--t); position: relative; overflow: hidden; }
 .role-card:hover { transform: translateY(-5px); border-color: var(--border-2); box-shadow: var(--shadow-lg), var(--glow); }
-.role-card .rc-ico { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; margin-bottom: 1rem; }
+.role-card .rc-ico-wrap { height: 62px; flex-shrink: 0; display: flex; align-items: flex-start; }
+.role-card .rc-ico { width: 46px; height: 46px; border-radius: 13px; display: grid; place-items: center; }
 .role-card h3 { font-size: 1.1rem; font-weight: 800; }
 .role-card p { font-size: .82rem; color: var(--text-3); margin-top: .25rem; }
 .role-card .rc-go { display: inline-flex; align-items: center; gap: .35rem; margin-top: auto; padding-top: 1rem; font-size: .82rem; font-weight: 700; color: var(--primary-2); }

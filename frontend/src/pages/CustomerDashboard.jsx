@@ -18,9 +18,10 @@ const PERIODS = [
 
 function ChartTooltip({ active, payload, label }) {
   if (!active || !payload?.length) return null
+  const displayLabel = payload[0]?.payload?.tooltip ?? label
   return (
     <div style={{ background: 'var(--surface-2)', border: '1px solid var(--border-2)', borderRadius: 10, padding: '.55rem .8rem', boxShadow: 'var(--shadow)' }}>
-      <div style={{ fontSize: '.72rem', color: 'var(--text-3)', marginBottom: 2 }}>{label}</div>
+      <div style={{ fontSize: '.72rem', color: 'var(--text-3)', marginBottom: 2 }}>{displayLabel}</div>
       <div style={{ fontWeight: 700 }}>{payload[0].value.toFixed(1)} hours</div>
     </div>
   )
@@ -68,12 +69,19 @@ export default function CustomerDashboard() {
 
   const chartData = useMemo(() => {
     if (!summary) return []
-    if (period === 'daily') return summary.daily.map((d) => ({ label: d.date.slice(5), value: d.hours }))
-    if (period === 'weekly') return summary.weekly.map((d) => ({ label: d.week.replace('-W', ' W'), value: d.hours }))
+    if (period === 'daily') return summary.daily.map((d) => {
+      const date = new Date(d.date + 'T00:00:00')
+      const tooltip = date.toLocaleDateString('en', { month: 'short', day: 'numeric', year: 'numeric' })
+      return { label: d.date.slice(5), value: d.hours, tooltip }
+    })
+    if (period === 'weekly') return summary.weekly.map((d) => {
+      const [year, week] = d.week.split('-W')
+      return { label: `W${week}`, value: d.hours, tooltip: `${year} W${week}` }
+    })
     return summary.monthly.map((d) => {
       const [y, m] = d.month.split('-')
       const name = new Date(y, m - 1).toLocaleString('en', { month: 'short' })
-      return { label: `${name} ${y.slice(2)}`, value: d.hours }
+      return { label: `${name} '${y.slice(2)}`, value: d.hours, tooltip: `${name} ${y}` }
     })
   }, [summary, period])
 

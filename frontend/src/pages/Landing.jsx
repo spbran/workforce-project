@@ -24,20 +24,24 @@ export default function Landing() {
 
         <motion.div className="role-cards" variants={item}>
           <motion.div whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 300 }}>
-            <Link to="/admin/agents" className="role-card">
-              <div className="rc-ico" style={{ background: 'linear-gradient(135deg,#f4c44e,#e07a38)' }}>
-                <Settings size={22} color="#fff" />
+            <Link to="/admin/agents" className="role-card rc--admin">
+              <div className="rc-ico-wrap">
+                <div className="rc-ico" style={{ background: 'linear-gradient(135deg,#f4c44e,#e07a38)' }}>
+                  <Settings size={22} color="#fff" />
+                </div>
               </div>
               <h3>Admin Portal</h3>
-              <p>Manage agent properties and campaign assignments in one UI.</p>
+              <p>Manage agent properties and campaign assignments.</p>
               <span className="rc-go">Enter portal <ArrowRight size={15} /></span>
             </Link>
           </motion.div>
 
           <motion.div whileHover={{ y: -6 }} transition={{ type: 'spring', stiffness: 300 }}>
-            <Link to="/customer" className="role-card">
-              <div className="rc-ico" style={{ background: 'linear-gradient(135deg,#2f9e8c,#4cbfa9)' }}>
-                <BarChart3 size={22} color="#fff" />
+            <Link to="/customer" className="role-card rc--customer">
+              <div className="rc-ico-wrap">
+                <div className="rc-ico" style={{ background: 'linear-gradient(135deg,#2f9e8c,#4cbfa9)' }}>
+                  <BarChart3 size={22} color="#fff" />
+                </div>
               </div>
               <h3>Customer Dashboard</h3>
               <p>Track hours worked by day, week, and month with live KPIs.</p>

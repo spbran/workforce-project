@@ -7,8 +7,8 @@ const COLORS = ['var(--surface-3)', 'rgba(231,138,59,.3)', 'rgba(231,138,59,.5)'
 export default function Heatmap({ daily }) {
   const [hover, setHover] = useState(null)
 
-  const { weeks, max } = useMemo(() => {
-    if (!daily.length) return { weeks: [], max: 0 }
+  const { weeks, max, monthLabels } = useMemo(() => {
+    if (!daily.length) return { weeks: [], max: 0, monthLabels: [] }
     const map = new Map(daily.map((d) => [d.date, d.hours]))
     const max = Math.max(...daily.map((d) => d.hours))
 
@@ -29,7 +29,16 @@ export default function Heatmap({ daily }) {
       }
       weeks.push(col)
     }
-    return { weeks, max }
+
+    // month label at the first column of each new month
+    let lastMonth = null
+    const monthLabels = weeks.map((col) => {
+      const m = col[0].date.slice(5, 7)
+      if (m !== lastMonth) { lastMonth = m; return new Date(col[0].date + 'T00:00:00').toLocaleString('en', { month: 'short' }) }
+      return null
+    })
+
+    return { weeks, max, monthLabels }
   }, [daily])
 
   const bucket = (h) => {
@@ -44,6 +53,11 @@ export default function Heatmap({ daily }) {
 
   return (
     <div>
+      <div className="heat-month-row">
+        {weeks.map((_, wi) => (
+          <div className="heat-month-label" key={wi}>{monthLabels[wi] ?? ''}</div>
+        ))}
+      </div>
       <div className="heatmap">
         {weeks.map((col, wi) => (
           <div className="heat-col" key={wi}>
