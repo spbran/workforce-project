@@ -31,6 +31,8 @@ on the customer dashboard.
 
 Two processes — the API and the Vite dev server (which proxies `/api` → API).
 
+### macOS / Linux
+
 ```bash
 # 1. Backend (from the project root)
 python3 -m venv .venv
@@ -45,13 +47,50 @@ npm run dev
 
 Open **http://localhost:5173**.
 
+### Windows (Command Prompt or PowerShell)
+
+> **Prerequisites:** [Python 3.10+](https://www.python.org/downloads/) and [Node.js 18+](https://nodejs.org/) must be installed and on your PATH.
+
+```bat
+:: 1. Backend (from the project root — run in Terminal 1)
+python -m venv .venv
+.venv\Scripts\pip install fastapi uvicorn aiosqlite
+.venv\Scripts\uvicorn app:app --port 5050 --reload
+```
+
+Open a second terminal window for the frontend:
+
+```bat
+:: 2. Frontend (Terminal 2)
+cd frontend
+npm install
+npm run dev
+```
+
+Open **http://localhost:5173**.
+
+> **Tip:** If `python` is not recognised, try `py` instead (the Python Launcher for Windows).
+> If you hit an execution-policy error in PowerShell, run:
+> `Set-ExecutionPolicy -Scope CurrentUser -ExecutionPolicy RemoteSigned`
+
 ## Running as a single server (production)
 
-Build the frontend, then let FastAPI serve everything from one port:
+Build the frontend, then let FastAPI serve everything from one port.
+
+### macOS / Linux
 
 ```bash
 cd frontend && npm run build && cd ..
 .venv/bin/uvicorn app:app --port 5050
+```
+
+### Windows
+
+```bat
+cd frontend
+npm run build
+cd ..
+.venv\Scripts\uvicorn app:app --port 5050
 ```
 
 Open **http://localhost:5050** — FastAPI serves the built SPA and falls back to
