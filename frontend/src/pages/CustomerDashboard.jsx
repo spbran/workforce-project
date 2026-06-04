@@ -203,8 +203,11 @@ export default function CustomerDashboard() {
           <span style={{ fontSize: '.85rem', color: 'var(--text-3)', whiteSpace: 'nowrap' }}>Select campaign:</span>
           <select className="input" style={{ width: 260 }} value={selected} onChange={(e) => setSelected(e.target.value)}>
             <option value="">Choose a campaign…</option>
-            {campaigns.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}{c.total_hours > 0 ? '' : ' (no data)'}</option>
+            {[...campaigns].filter(c => c.total_hours > 0).sort((a, b) => a.name.localeCompare(b.name)).map((c) => (
+              <option key={c.id} value={c.id}>{c.name}</option>
+            ))}
+            {[...campaigns].filter(c => c.total_hours <= 0).sort((a, b) => a.name.localeCompare(b.name)).map((c) => (
+              <option key={c.id} value={c.id} disabled style={{ color: 'var(--text-3)' }}>{c.name} (no data)</option>
             ))}
           </select>
         </div>
