@@ -27,25 +27,33 @@ function ChartTooltip({ active, payload, label }) {
   )
 }
 
+function SectionHead({ title, children }) {
+  return (
+    <div className="section-head">
+      <div className="section-divider">{title}</div>
+      {children}
+    </div>
+  )
+}
+
 export default function CustomerDashboard() {
   const [campaigns, setCampaigns] = useState([])
   const [selected, setSelected] = useState('')
+  const [overview, setOverview] = useState(null)
   const [summary, setSummary] = useState(null)
   const [period, setPeriod] = useState('daily')
-  const [loading, setLoading] = useState(false)
+  const [campaignLoading, setCampaignLoading] = useState(false)
+  const [overviewLoading, setOverviewLoading] = useState(true)
 
   useEffect(() => {
-    api.campaigns().then((c) => {
-      const active = c.filter((x) => x.total_hours > 0)
-      setCampaigns(c)
-      if (active.length) setSelected(String(active[0].id))
-    })
+    api.campaigns().then(setCampaigns)
+    api.customerOverview().then((s) => { setOverview(s); setOverviewLoading(false) })
   }, [])
 
   useEffect(() => {
-    if (!selected) return
-    setLoading(true)
-    api.kpiSummary(selected).then((s) => { setSummary(s); setLoading(false) })
+    if (!selected) { setSummary(null); return }
+    setCampaignLoading(true)
+    api.kpiSummary(selected).then((s) => { setSummary(s); setCampaignLoading(false) })
   }, [selected])
 
   const greeting = useMemo(() => {
@@ -55,18 +63,26 @@ export default function CustomerDashboard() {
     return 'Good evening'
   }, [])
 
+  // Tier + achievements always derived from aggregate overview
   const derived = useMemo(() => {
-    if (!summary) return null
-    const peak = summary.daily.length ? Math.max(...summary.daily.map((d) => d.hours)) : 0
-    const avg = summary.total_days ? summary.total_hours / summary.total_days : 0
-    const spark = summary.daily.slice(-16).map((d) => d.hours)
-    const lvl = levelFor(summary.total_hours)
-    // recent vs prior week trend
-    const dvals = summary.daily.map((d) => d.hours)
+    if (!overview) return null
+    const peak = overview.daily.length ? Math.max(...overview.daily.map((d) => d.hours)) : 0
+    const avg = overview.total_days ? overview.total_hours / overview.total_days : 0
+    const spark = overview.daily.slice(-16).map((d) => d.hours)
+    const lvl = levelFor(overview.total_hours)
+    const dvals = overview.daily.map((d) => d.hours)
     const recent = dvals.slice(-7).reduce((a, b) => a + b, 0)
     const prior = dvals.slice(-14, -7).reduce((a, b) => a + b, 0)
     const trend = prior > 0 ? Math.round(((recent - prior) / prior) * 100) : 0
-    return { peak, avg, spark, lvl, trend, achievements: achievements(summary) }
+    return { peak, avg, spark, lvl, trend, achievements: achievements(overview) }
+  }, [overview])
+
+  // Per-campaign derived stats
+  const campaignDerived = useMemo(() => {
+    if (!summary) return null
+    const peak = summary.daily.length ? Math.max(...summary.daily.map((d) => d.hours)) : 0
+    const avg = summary.total_days ? summary.total_hours / summary.total_days : 0
+    return { peak, avg }
   }, [summary])
 
   const chartData = useMemo(() => {
@@ -91,48 +107,35 @@ export default function CustomerDashboard() {
 
   return (
     <>
+      {/* Topbar — greeting only, no campaign selector */}
       <div className="topbar">
         <div className="topbar-title">
           <h1>{greeting}, Spencer!</h1>
           <p>Your campaign performance at a glance</p>
         </div>
-        <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
-          <span style={{ fontSize: '.85rem', color: 'var(--text-3)', whiteSpace: 'nowrap' }}>Select campaign:</span>
-          <select className="input" style={{ width: 280 }} value={selected} onChange={(e) => setSelected(e.target.value)}>
-            <option value="">Select a campaign…</option>
-            {campaigns.map((c) => (
-              <option key={c.id} value={c.id}>{c.name}{c.total_hours > 0 ? '' : ' (no data)'}</option>
-            ))}
-          </select>
-        </div>
       </div>
 
-      {!selected ? (
-        <div className="empty">
-          <div className="empty-ico"><BarChart3 size={30} color="var(--primary-2)" /></div>
-          <h2>Select a Campaign</h2>
-          <p>Choose a campaign above to view its KPI dashboard.</p>
-        </div>
-      ) : loading || !summary || !derived ? (
+      {/* ── SECTION 1: Portfolio Overview ─────────────────────────────────── */}
+      <SectionHead title="Portfolio Overview" />
+
+      {overviewLoading || !overview || !derived ? (
         <div className="empty"><div className="spinner" /></div>
       ) : (
-        <motion.div key={selected} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-          {/* Stat cards */}
+        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
           <div className="stat-grid">
-            <StatCard index={0} icon={Clock} label="Total Hours" value={summary.total_hours} decimals={0} suffix=" h" accent="pink" trend={derived.trend} spark={derived.spark} />
+            <StatCard index={0} icon={Clock} label="Total Hours" value={overview.total_hours} decimals={0} suffix=" h" accent="pink" trend={derived.trend} spark={derived.spark} />
             <StatCard index={1} icon={CalendarDays} label="Avg Hours / Day" value={derived.avg} decimals={1} accent="purple" spark={derived.spark} />
             <StatCard index={2} icon={Zap} label="Peak Day" value={derived.peak} decimals={1} suffix=" h" accent="amber" />
-            <StatCard index={3} icon={Flame} label="Active Days" value={summary.total_days} accent="cyan" />
+            <StatCard index={3} icon={Flame} label="Active Days" value={overview.total_days} accent="cyan" />
           </div>
 
-          {/* Gamification */}
           <div className="grid-2" style={{ marginBottom: '1.25rem' }}>
             <motion.div className="card level-card" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
               <LevelRing level={derived.lvl.level} progress={derived.lvl.progress} />
               <div className="level-meta">
                 <div className="level-row">
                   <h3>{derived.lvl.title}</h3>
-                  <span className="level-tag">Lvl {derived.lvl.level}</span>
+                  <span className="level-tag">{derived.lvl.title}</span>
                 </div>
                 <p>{derived.lvl.blurb}</p>
                 <div className="xp-track">
@@ -140,8 +143,8 @@ export default function CustomerDashboard() {
                 </div>
                 <div className="xp-text">
                   {derived.lvl.next
-                    ? `${Math.round(summary.total_hours).toLocaleString()} / ${derived.lvl.next.min.toLocaleString()} h to Level ${derived.lvl.level + 1}`
-                    : 'Max level reached! 🏆'}
+                    ? `${Math.round(overview.total_hours).toLocaleString()} / ${derived.lvl.next.min.toLocaleString()} h to ${derived.lvl.next.title}`
+                    : 'Elite tier reached! 🏆'}
                 </div>
               </div>
             </motion.div>
@@ -183,7 +186,7 @@ export default function CustomerDashboard() {
                       <div className="badge-tip-stat">
                         {b.earned
                           ? '✓ Unlocked'
-                          : `${fmt(b.value, b.unit === 'days' ? 0 : 0)} / ${fmt(b.target, 0)} ${b.unit} · ${Math.round(b.progress * 100)}%`}
+                          : `${fmt(b.value, 0)} / ${fmt(b.target, 0)} ${b.unit} · ${Math.round(b.progress * 100)}%`}
                       </div>
                     </div>
                   </motion.div>
@@ -191,9 +194,42 @@ export default function CustomerDashboard() {
               </div>
             </motion.div>
           </div>
+        </motion.div>
+      )}
+
+      {/* ── SECTION 2: Campaign Detail ─────────────────────────────────────── */}
+      <SectionHead title="Campaign Detail">
+        <div style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+          <span style={{ fontSize: '.85rem', color: 'var(--text-3)', whiteSpace: 'nowrap' }}>Select campaign:</span>
+          <select className="input" style={{ width: 260 }} value={selected} onChange={(e) => setSelected(e.target.value)}>
+            <option value="">Choose a campaign…</option>
+            {campaigns.map((c) => (
+              <option key={c.id} value={c.id}>{c.name}{c.total_hours > 0 ? '' : ' (no data)'}</option>
+            ))}
+          </select>
+        </div>
+      </SectionHead>
+
+      {!selected ? (
+        <div className="empty" style={{ padding: '3rem 2rem' }}>
+          <div className="empty-ico"><BarChart3 size={30} color="var(--primary-2)" /></div>
+          <h2>Select a Campaign</h2>
+          <p>Choose a campaign above to view its breakdown.</p>
+        </div>
+      ) : campaignLoading || !summary || !campaignDerived ? (
+        <div className="empty"><div className="spinner" /></div>
+      ) : (
+        <motion.div key={selected} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
+          {/* Campaign stat cards */}
+          <div className="stat-grid">
+            <StatCard index={0} icon={Clock} label="Campaign Hours" value={summary.total_hours} decimals={0} suffix=" h" accent="pink" />
+            <StatCard index={1} icon={CalendarDays} label="Avg Hours / Day" value={campaignDerived.avg} decimals={1} accent="purple" />
+            <StatCard index={2} icon={Zap} label="Peak Day" value={campaignDerived.peak} decimals={1} suffix=" h" accent="amber" />
+            <StatCard index={3} icon={Flame} label="Active Days" value={summary.total_days} accent="cyan" />
+          </div>
 
           {/* Hours chart */}
-          <motion.div className="card" style={{ marginBottom: '1.25rem' }} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }}>
+          <motion.div className="card" style={{ marginBottom: '1.25rem' }} initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }}>
             <div className="card-head">
               <div>
                 <h3>Hours Worked</h3>
@@ -227,11 +263,11 @@ export default function CustomerDashboard() {
           </motion.div>
 
           {/* Heatmap */}
-          <motion.div className="card" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }}>
+          <motion.div className="card" initial={{ opacity: 0, y: 18 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.22 }}>
             <div className="card-head">
               <div>
                 <h3>Activity Heatmap</h3>
-                <div className="sub">Daily hours intensity across the campaign window</div>
+                <div className="sub">Daily hours intensity · {selectedCampaign?.name}</div>
               </div>
             </div>
             <div className="card-pad" style={{ overflowX: 'auto' }}>

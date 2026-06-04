@@ -217,6 +217,41 @@ async def get_kpis_summary(campaign_id: int, conn=Depends(get_db)):
     }
 
 
+# ── Customer overview (aggregate across all campaigns) ────────────────────────
+
+@app.get("/api/customer/overview")
+async def customer_overview(conn=Depends(get_db)):
+    async with conn.execute(
+        "SELECT date, SUM(hours) as hours FROM campaign_kpi GROUP BY date ORDER BY date"
+    ) as cur:
+        daily = [dict(r) for r in await cur.fetchall()]
+
+    async with conn.execute(
+        """SELECT strftime('%Y-W%W', date) as week, SUM(hours) as hours
+           FROM campaign_kpi GROUP BY week ORDER BY week"""
+    ) as cur:
+        weekly = [dict(r) for r in await cur.fetchall()]
+
+    async with conn.execute(
+        """SELECT strftime('%Y-%m', date) as month, SUM(hours) as hours
+           FROM campaign_kpi GROUP BY month ORDER BY month"""
+    ) as cur:
+        monthly = [dict(r) for r in await cur.fetchall()]
+
+    async with conn.execute(
+        "SELECT SUM(hours) as total, COUNT(DISTINCT date) as days FROM campaign_kpi"
+    ) as cur:
+        row = dict(await cur.fetchone())
+
+    return {
+        "daily": daily,
+        "weekly": weekly,
+        "monthly": monthly,
+        "total_hours": row["total"] or 0,
+        "total_days": row["days"] or 0,
+    }
+
+
 # ── Serve built SPA (production) ──────────────────────────────────────────────
 # In dev, the React app runs on the Vite server (port 5173) and proxies /api here.
 # After `npm run build`, this serves the compiled bundle and falls back to

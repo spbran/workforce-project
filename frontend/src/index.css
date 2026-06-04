@@ -277,6 +277,10 @@ select.input option { background: var(--surface-2); }
 .switch input:checked + .track { background: linear-gradient(135deg,#5fa57a,#3f8a63); }
 .switch input:checked + .track::before { transform: translateX(18px); }
 
+/* ── Section headers ──────────────────────────────────────────────────────── */
+.section-head { display: flex; align-items: center; justify-content: space-between; margin: 1.75rem 0 1rem; }
+.section-divider { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--text-3); padding-left: .1rem; }
+
 /* ── Heatmap ──────────────────────────────────────────────────────────────── */
 .heat-month-row { display: flex; gap: 4px; margin-bottom: 4px; }
 .heat-month-label { width: 14px; min-width: 14px; font-size: 9px; color: var(--text-3); white-space: nowrap; overflow: visible; line-height: 1; }
