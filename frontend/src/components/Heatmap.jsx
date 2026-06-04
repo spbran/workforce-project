@@ -30,11 +30,16 @@ export default function Heatmap({ daily }) {
       weeks.push(col)
     }
 
-    // month label at the first column of each new month
+    // month label at the first column of each new month —
+    // only show if that specific month has at least one day with real data in this column
     let lastMonth = null
     const monthLabels = weeks.map((col) => {
       const m = col[0].date.slice(5, 7)
-      if (m !== lastMonth) { lastMonth = m; return new Date(col[0].date + 'T00:00:00').toLocaleString('en', { month: 'short' }) }
+      if (m !== lastMonth) {
+        lastMonth = m
+        const hasMonthData = col.some(cell => cell.date.slice(5, 7) === m && cell.hours !== null)
+        return hasMonthData ? new Date(col[0].date + 'T00:00:00').toLocaleString('en', { month: 'short' }) : null
+      }
       return null
     })
 
