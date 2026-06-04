@@ -50,7 +50,9 @@ export default function CustomerDashboard() {
 
   const greeting = useMemo(() => {
     const h = new Date().getHours()
-    return h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening'
+    if (h >= 4 && h < 12) return 'Good morning'
+    if (h >= 12 && h < 17) return 'Good afternoon'
+    return 'Good evening'
   }, [])
 
   const derived = useMemo(() => {
@@ -91,10 +93,11 @@ export default function CustomerDashboard() {
     <>
       <div className="topbar">
         <div className="topbar-title">
-          <h1>{greeting} 👋</h1>
+          <h1>{greeting}, Spencer!</h1>
           <p>Your campaign performance at a glance</p>
         </div>
-        <div className="topbar-actions">
+        <div className="topbar-actions" style={{ display: 'flex', alignItems: 'center', gap: '.6rem' }}>
+          <span style={{ fontSize: '.85rem', color: 'var(--text-3)', whiteSpace: 'nowrap' }}>Select campaign:</span>
           <select className="input" style={{ width: 280 }} value={selected} onChange={(e) => setSelected(e.target.value)}>
             <option value="">Select a campaign…</option>
             {campaigns.map((c) => (
