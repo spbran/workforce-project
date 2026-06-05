@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
-import { Settings, BarChart3, ArrowRight, Sparkles } from 'lucide-react'
+import { Settings, BarChart3, ArrowRight } from 'lucide-react'
 
 const container = { hidden: {}, show: { transition: { staggerChildren: 0.12, delayChildren: 0.15 } } }
 const item = { hidden: { opacity: 0, y: 24 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 260, damping: 24 } } }
@@ -9,12 +9,8 @@ export default function Landing() {
   return (
     <div className="landing">
       <motion.div className="landing-inner" variants={container} initial="hidden" animate="show">
-        <motion.div className="landing-eyebrow" variants={item}>
-          <Sparkles size={13} /> Agentic Workforce Delivery Platform
-        </motion.div>
-
-        <motion.h1 variants={item}>
-          Workforce <span className="hl">Campaign Ops</span><br />that feels like magic.
+        <motion.h1 className="landing-title-shimmer" variants={item}>
+          Spencer's Workforce<br />Delivery Platform
         </motion.h1>
 
         <motion.p className="landing-sub" variants={item}>

@@ -387,6 +387,23 @@ select.input option { background: var(--surface-2); }
 }
 .landing h1 { font-size: clamp(2.4rem, 6vw, 4rem); font-weight: 900; letter-spacing: -1.5px; line-height: 1.05; }
 .landing h1 .hl { background: var(--grad); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+
+@keyframes gold-shimmer {
+  0%   { background-position: 250% center; }
+  100% { background-position: -150% center; }
+}
+.landing-title-shimmer {
+  background: linear-gradient(90deg,
+    #fff 0%, #fff 38%,
+    #f4c44e 46%, #ffe082 50%, #f4c44e 54%,
+    #fff 62%, #fff 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: gold-shimmer 8s linear infinite;
+}
 .landing-sub { color: var(--text-2); font-size: 1.05rem; margin: 1.1rem auto 2.5rem; max-width: 480px; }
 .role-cards { display: flex; gap: 1.1rem; justify-content: center; align-items: stretch; flex-wrap: wrap; }
 .role-cards > * { display: flex; }

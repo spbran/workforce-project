@@ -5,7 +5,6 @@ export default function Sidebar({ counts = {}, open }) {
   return (
     <aside className={`sidebar ${open ? 'open' : ''}`}>
       <div className="sidebar-brand">
-        <div className="sidebar-rocket">🚀</div>
         <span className="sidebar-wordmark">Spencer's Workforce Delivery Platform</span>
       </div>
 

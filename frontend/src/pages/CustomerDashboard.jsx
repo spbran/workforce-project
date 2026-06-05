@@ -135,7 +135,6 @@ export default function CustomerDashboard() {
               <div className="level-meta">
                 <div className="level-row">
                   <h3>{derived.lvl.title}</h3>
-                  <span className="level-tag">{derived.lvl.title}</span>
                 </div>
                 <p>{derived.lvl.blurb}</p>
                 <div className="xp-track">
