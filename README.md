@@ -37,7 +37,7 @@ Two processes — the API and the Vite dev server (which proxies `/api` → API)
 # 1. Backend (from the project root)
 python3 -m venv .venv
 .venv/bin/pip install fastapi uvicorn aiosqlite
-.venv/bin/uvicorn app:app --port 5050 --reload
+.venv/bin/uvicorn app:app --port 8000 --reload
 
 # 2. Frontend (in a second terminal)
 cd frontend
@@ -55,7 +55,7 @@ Open **http://localhost:5173**.
 :: 1. Backend (from the project root — run in Terminal 1)
 python -m venv .venv
 .venv\Scripts\pip install fastapi uvicorn aiosqlite
-.venv\Scripts\uvicorn app:app --port 5050 --reload
+.venv\Scripts\uvicorn app:app --port 8000 --reload
 ```
 
 Open a second terminal window for the frontend:
@@ -81,7 +81,7 @@ Build the frontend, then let FastAPI serve everything from one port.
 
 ```bash
 cd frontend && npm run build && cd ..
-.venv/bin/uvicorn app:app --port 5050
+.venv/bin/uvicorn app:app --port 8000
 ```
 
 ### Windows
@@ -90,10 +90,10 @@ cd frontend && npm run build && cd ..
 cd frontend
 npm run build
 cd ..
-.venv\Scripts\uvicorn app:app --port 5050
+.venv\Scripts\uvicorn app:app --port 8000
 ```
 
-Open **http://localhost:5050** — FastAPI serves the built SPA and falls back to
+Open **http://localhost:8000** — FastAPI serves the built SPA and falls back to
 `index.html` for client-side routes.
 
 ## API overview
